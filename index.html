@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calculadora de Viaje</title>
+  <style>
+    :root {
+      --bg: #f7f3e9;
+      --bg2: #e5f4f1;
+      --card: #ffffff;
+      --text: #1f2a2e;
+      --muted: #5a6a70;
+      --primary: #0f5d66;
+      --primary-strong: #0a4b51;
+      --accent: #d86e2b;
+      --accent-strong: #b85a1f;
+      --line: #d3dfdd;
+      --ok: #1f7a47;
+      --warn: #ad3f15;
+      --shadow: 0 14px 30px rgba(15, 93, 102, 0.12);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      color: var(--text);
+      font-family: "Trebuchet MS", "Verdana", "Tahoma", sans-serif;
+      background:
+        radial-gradient(circle at 10% -10%, #fff7db 0%, transparent 45%),
+        radial-gradient(circle at 100% 0%, #d6eee8 0%, transparent 40%),
+        linear-gradient(160deg, var(--bg), var(--bg2));
+    }
+
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 18px 14px calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .hero {
+      padding: 16px 14px;
+      margin-bottom: 12px;
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, #0f5d66 0%, #127782 100%);
+      color: #f8feff;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Palatino Linotype", "Book Antiqua", "Georgia", serif;
+      letter-spacing: 0.3px;
+      font-size: clamp(1.25rem, 3.8vw, 1.65rem);
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      opacity: 0.95;
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.04rem;
+      font-family: "Palatino Linotype", "Book Antiqua", "Georgia", serif;
+      color: #0e4d56;
+    }
+
+    .row {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .row.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #27454b;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid #bdd0d3;
+      padding: 10px 12px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fbfefd;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 93, 102, 0.17);
+    }
+
+    .actions {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 0.97rem;
+      font-weight: 700;
+      padding: 10px 12px;
+      cursor: pointer;
+      color: #fff;
+      background: var(--primary);
+    }
+
+    button:hover {
+      background: var(--primary-strong);
+    }
+
+    button.secondary {
+      background: #e8f3f2;
+      color: #0c4f55;
+      border: 1px solid #c6dcda;
+    }
+
+    button.secondary:hover {
+      background: #d7ecea;
+    }
+
+    button.accent {
+      background: var(--accent);
+    }
+
+    button.accent:hover {
+      background: var(--accent-strong);
+    }
+
+    button.danger {
+      background: #c94832;
+    }
+
+    button.danger:hover {
+      background: #ad3924;
+    }
+
+    .trip-meta,
+    .result-box,
+    .status {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .trip-meta {
+      background: #f3f8f7;
+      border: 1px solid #d8e7e4;
+      color: #21464b;
+      margin-top: 6px;
+    }
+
+    .status {
+      display: none;
+      margin: 10px 0 0;
+      border: 1px solid transparent;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.ok {
+      color: #0f5632;
+      border-color: #badcc8;
+      background: #ecf8f0;
+    }
+
+    .status.warn {
+      color: #7a2d0e;
+      border-color: #f0c7b4;
+      background: #fff2ec;
+    }
+
+    .result-box {
+      margin-top: 10px;
+      border: 1px dashed #adc7c9;
+      background: #f2f9f8;
+      color: #0d4f57;
+    }
+
+    .result-box strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.35rem;
+      letter-spacing: 0.3px;
+    }
+
+    .total {
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #f0d0b7;
+      background: linear-gradient(145deg, #fff7ef, #ffefd9);
+      color: #7c3f17;
+      font-size: 0.95rem;
+    }
+
+    .total strong {
+      font-size: 1.3rem;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .product-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .product-item {
+      border: 1px solid #d8e3e2;
+      border-radius: 14px;
+      background: #fcffff;
+      padding: 10px;
+    }
+
+    .product-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .product-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f4f57;
+    }
+
+    .product-date {
+      font-size: 0.8rem;
+      color: #5f7377;
+    }
+
+    .product-grid {
+      display: grid;
+      gap: 4px;
+      font-size: 0.88rem;
+      color: #29474e;
+    }
+
+    .empty {
+      border-radius: 12px;
+      border: 1px dashed #c6d9d8;
+      padding: 12px;
+      font-size: 0.9rem;
+      color: #4d676c;
+      background: #f7fbfa;
+    }
+
+    .formula {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #385e63;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 360px) {
+      .actions,
+      .row.two {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        min-height: 52px;
+      }
+    }
+
+    @media (min-width: 600px) {
+      .wrap {
+        padding-top: 24px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Calculadora de Viaje</h1>
+      <p>Funciona 100% offline. Calcula por producto, guarda por viaje y revisa el total acumulado.</p>
+    </section>
+
+    <section class="card" aria-label="Gestión de viajes">
+      <h2>1) Viajes</h2>
+      <div class="row">
+        <div>
+          <label for="tripName">Nombre del viaje</label>
+          <input id="tripName" type="text" placeholder="Ej: Santo Domingo - Mayo" autocomplete="off">
+        </div>
+      </div>
+      <div class="actions" style="margin-bottom:10px;">
+        <button id="createTripBtn" type="button">Crear viaje</button>
+        <button id="deleteTripBtn" type="button" class="danger">Eliminar viaje</button>
+      </div>
+      <div class="actions" style="margin-bottom:10px;">
+        <button id="exportTripBtn" type="button" class="secondary">Exportar viaje JSON</button>
+        <button id="importTripBtn" type="button" class="secondary">Importar viaje JSON</button>
+      </div>
+      <input id="importFileInput" type="file" accept="application/json,.json" style="display:none;">
+      <div class="row">
+        <div>
+          <label for="tripSelect">Viaje seleccionado</label>
+          <select id="tripSelect"></select>
+        </div>
+      </div>
+      <div id="tripMeta" class="trip-meta">Sin viaje seleccionado.</div>
+    </section>
+
+    <section class="card" aria-label="Calculadora">
+      <h2>2) Calcular producto</h2>
+      <div class="row two">
+        <div>
+          <label for="productName">Nombre del producto</label>
+          <input id="productName" type="text" placeholder="Ej: Perfume 100ml" autocomplete="off">
+        </div>
+        <div>
+          <label for="productDate">Fecha</label>
+          <input id="productDate" type="datetime-local">
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="precioPesoMx">precio_peso_mx</label>
+          <input id="precioPesoMx" type="number" inputmode="decimal" step="any" min="0" placeholder="0.00">
+        </div>
+        <div>
+          <label for="pesoProducto">peso_producto</label>
+          <input id="pesoProducto" type="number" inputmode="decimal" step="any" min="0" placeholder="0.00">
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="factorInput">Factor (default 30.5)</label>
+          <input id="factorInput" type="number" inputmode="decimal" step="any" placeholder="30.5">
+        </div>
+        <div>
+          <label for="baseInput">Base (default 10400)</label>
+          <input id="baseInput" type="number" inputmode="decimal" step="any" placeholder="10400">
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:6px;">
+        <button id="calculateBtn" type="button" class="accent">Calcular</button>
+        <button id="saveProductBtn" type="button">Guardar producto</button>
+        <button id="saveSettingsBtn" type="button" class="secondary">Guardar ajustes</button>
+        <button id="resetSettingsBtn" type="button" class="secondary">Restaurar defaults</button>
+      </div>
+
+      <div class="formula">
+        Fórmula: <strong>resultado = (precio_peso_mx * factor) + (base * peso_producto)</strong>
+      </div>
+
+      <div id="resultBox" class="result-box">
+        Resultado actual
+        <strong id="resultValue">0.00</strong>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" aria-label="Lista del viaje">
+      <h2>3) Lista y total del viaje</h2>
+      <div id="totalBox" class="total">
+        Total del viaje
+        <strong id="totalValue">0.00</strong>
+      </div>
+      <div id="productList" class="product-list"></div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = "calculadora_barba_data_v1";
+      const DEFAULT_SETTINGS = {
+        factor: 30.5,
+        base: 10400
+      };
+
+      const state = {
+        settings: { ...DEFAULT_SETTINGS },
+        trips: [],
+        selectedTripId: ""
+      };
+
+      const el = {
+        tripName: document.getElementById("tripName"),
+        createTripBtn: document.getElementById("createTripBtn"),
+        deleteTripBtn: document.getElementById("deleteTripBtn"),
+        exportTripBtn: document.getElementById("exportTripBtn"),
+        importTripBtn: document.getElementById("importTripBtn"),
+        importFileInput: document.getElementById("importFileInput"),
+        tripSelect: document.getElementById("tripSelect"),
+        tripMeta: document.getElementById("tripMeta"),
+        productName: document.getElementById("productName"),
+        productDate: document.getElementById("productDate"),
+        precioPesoMx: document.getElementById("precioPesoMx"),
+        pesoProducto: document.getElementById("pesoProducto"),
+        factorInput: document.getElementById("factorInput"),
+        baseInput: document.getElementById("baseInput"),
+        calculateBtn: document.getElementById("calculateBtn"),
+        saveProductBtn: document.getElementById("saveProductBtn"),
+        saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+        resetSettingsBtn: document.getElementById("resetSettingsBtn"),
+        resultValue: document.getElementById("resultValue"),
+        status: document.getElementById("status"),
+        totalValue: document.getElementById("totalValue"),
+        productList: document.getElementById("productList")
+      };
+
+      function parseNumber(value) {
+        if (typeof value === "number") return value;
+        if (!value) return NaN;
+        const normalized = String(value).replace(/,/g, ".").trim();
+        return Number(normalized);
+      }
+
+      function isValidDateString(value) {
+        if (!value) return false;
+        return !Number.isNaN(new Date(value).getTime());
+      }
+
+      function formatMoney(numberValue) {
+        return new Intl.NumberFormat("es-DO", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(numberValue || 0);
+      }
+
+      function formatDate(dateIso) {
+        const date = new Date(dateIso);
+        if (Number.isNaN(date.getTime())) return "-";
+        return date.toLocaleString("es-DO", {
+          dateStyle: "short",
+          timeStyle: "short"
+        });
+      }
+
+      function showStatus(message, type) {
+        el.status.textContent = message;
+        el.status.className = "status show " + (type === "ok" ? "ok" : "warn");
+      }
+
+      function clearStatus() {
+        el.status.textContent = "";
+        el.status.className = "status";
+      }
+
+      function uid(prefix) {
+        const randomPart = Math.random().toString(36).slice(2, 7);
+        return prefix + "_" + Date.now() + "_" + randomPart;
+      }
+
+      function slugify(value) {
+        const raw = String(value || "viaje")
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_-]/g, "");
+        return raw || "viaje";
+      }
+
+      function buildExportFileName(tripName) {
+        const now = new Date();
+        const pad = function (n) { return String(n).padStart(2, "0"); };
+        const y = now.getFullYear();
+        const m = pad(now.getMonth() + 1);
+        const d = pad(now.getDate());
+        const h = pad(now.getHours());
+        const min = pad(now.getMinutes());
+        return "viaje_" + slugify(tripName).slice(0, 40) + "_" + y + m + d + "_" + h + min + ".json";
+      }
+
+      function ensureUniqueTripName(baseName) {
+        const cleanBase = String(baseName || "Viaje importado").trim() || "Viaje importado";
+        const names = state.trips.map(function (trip) { return trip.name.toLowerCase(); });
+        if (!names.includes(cleanBase.toLowerCase())) {
+          return cleanBase;
+        }
+
+        let i = 2;
+        while (i < 10000) {
+          const candidate = cleanBase + " (" + i + ")";
+          if (!names.includes(candidate.toLowerCase())) {
+            return candidate;
+          }
+          i += 1;
+        }
+
+        return cleanBase + " (" + Date.now() + ")";
+      }
+
+      function sanitizeImportedProduct(product, idx) {
+        const nowIso = new Date().toISOString();
+        const precio = parseNumber(product && product.precio_peso_mx);
+        const peso = parseNumber(product && product.peso_producto);
+        const factor = parseNumber(product && product.factor);
+        const base = parseNumber(product && product.base);
+        const safePrecio = Number.isFinite(precio) && precio >= 0 ? precio : 0;
+        const safePeso = Number.isFinite(peso) && peso >= 0 ? peso : 0;
+        const safeFactor = Number.isFinite(factor) ? factor : state.settings.factor;
+        const safeBase = Number.isFinite(base) ? base : state.settings.base;
+        const incomingResult = parseNumber(product && product.resultado);
+        const computedResult = calculateResult({
+          precioPesoMx: safePrecio,
+          pesoProducto: safePeso,
+          factor: safeFactor,
+          base: safeBase
+        });
+        const safeResult = Number.isFinite(incomingResult) ? incomingResult : computedResult;
+
+        return {
+          id: product && typeof product.id === "string" ? product.id : uid("prod_imp"),
+          nombre: String((product && product.nombre) || ("Producto importado " + (idx + 1))),
+          fecha: isValidDateString(product && product.fecha) ? product.fecha : nowIso,
+          precio_peso_mx: safePrecio,
+          peso_producto: safePeso,
+          factor: safeFactor,
+          base: safeBase,
+          resultado: safeResult,
+          savedAt: isValidDateString(product && product.savedAt) ? product.savedAt : nowIso
+        };
+      }
+
+      function sanitizeImportedTrip(rawTrip) {
+        if (!rawTrip || typeof rawTrip !== "object") return null;
+
+        const products = Array.isArray(rawTrip.products) ? rawTrip.products : [];
+        const safeProducts = products.map(function (product, idx) {
+          return sanitizeImportedProduct(product, idx);
+        });
+
+        return {
+          id: uid("trip_imp"),
+          name: ensureUniqueTripName(String(rawTrip.name || "Viaje importado")),
+          createdAt: isValidDateString(rawTrip.createdAt) ? rawTrip.createdAt : new Date().toISOString(),
+          products: safeProducts
+        };
+      }
+
+      function getSelectedTrip() {
+        return state.trips.find(function (trip) {
+          return trip.id === state.selectedTripId;
+        }) || null;
+      }
+
+      function validateInputNumbers() {
+        const precioPesoMx = parseNumber(el.precioPesoMx.value);
+        const pesoProducto = parseNumber(el.pesoProducto.value);
+        const factor = parseNumber(el.factorInput.value);
+        const base = parseNumber(el.baseInput.value);
+
+        if (!Number.isFinite(precioPesoMx) || precioPesoMx < 0) {
+          showStatus("Ingresa un valor válido para precio_peso_mx (>= 0).", "warn");
+          return null;
+        }
+
+        if (!Number.isFinite(pesoProducto) || pesoProducto <= 0) {
+          showStatus("Ingresa un valor válido para peso_producto (> 0).", "warn");
+          return null;
+        }
+
+        if (!Number.isFinite(factor)) {
+          showStatus("Ingresa un valor válido para el factor.", "warn");
+          return null;
+        }
+
+        if (!Number.isFinite(base)) {
+          showStatus("Ingresa un valor válido para la base.", "warn");
+          return null;
+        }
+
+        return { precioPesoMx, pesoProducto, factor, base };
+      }
+
+      function calculateResult(values) {
+        return (values.precioPesoMx * values.factor) + (values.base * values.pesoProducto);
+      }
+
+      function updateResult(value) {
+        el.resultValue.textContent = formatMoney(value);
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          settings: state.settings,
+          trips: state.trips,
+          selectedTripId: state.selectedTripId
+        }));
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return;
+
+          const settings = parsed.settings || {};
+          const factor = parseNumber(settings.factor);
+          const base = parseNumber(settings.base);
+          state.settings.factor = Number.isFinite(factor) ? factor : DEFAULT_SETTINGS.factor;
+          state.settings.base = Number.isFinite(base) ? base : DEFAULT_SETTINGS.base;
+
+          const incomingTrips = Array.isArray(parsed.trips) ? parsed.trips : [];
+          state.trips = incomingTrips
+            .filter(function (trip) {
+              return trip && typeof trip === "object" && typeof trip.id === "string";
+            })
+            .map(function (trip) {
+              return {
+                id: trip.id,
+                name: String(trip.name || "Viaje sin nombre"),
+                createdAt: trip.createdAt || new Date().toISOString(),
+                products: Array.isArray(trip.products) ? trip.products : []
+              };
+            });
+
+          state.selectedTripId = typeof parsed.selectedTripId === "string" ? parsed.selectedTripId : "";
+
+          if (state.selectedTripId && !getSelectedTrip()) {
+            state.selectedTripId = "";
+          }
+        } catch (error) {
+          console.error("No se pudo cargar el estado:", error);
+        }
+      }
+
+      function setInputsFromSettings() {
+        el.factorInput.value = String(state.settings.factor);
+        el.baseInput.value = String(state.settings.base);
+      }
+
+      function renderTripSelect() {
+        const previousValue = state.selectedTripId;
+        el.tripSelect.innerHTML = "";
+
+        const emptyOption = document.createElement("option");
+        emptyOption.value = "";
+        emptyOption.textContent = "Sin viaje seleccionado";
+        el.tripSelect.appendChild(emptyOption);
+
+        state.trips.forEach(function (trip) {
+          const option = document.createElement("option");
+          option.value = trip.id;
+          option.textContent = trip.name;
+          el.tripSelect.appendChild(option);
+        });
+
+        if (previousValue && getSelectedTrip()) {
+          el.tripSelect.value = previousValue;
+        } else {
+          el.tripSelect.value = "";
+          state.selectedTripId = "";
+        }
+
+        el.deleteTripBtn.disabled = !state.selectedTripId;
+        el.exportTripBtn.disabled = !state.selectedTripId;
+      }
+
+      function renderTripMeta() {
+        const trip = getSelectedTrip();
+
+        if (!trip) {
+          el.tripMeta.textContent = "Sin viaje seleccionado.";
+          return;
+        }
+
+        el.tripMeta.textContent =
+          "Viaje: " + trip.name +
+          " | Creado: " + formatDate(trip.createdAt) +
+          " | Productos guardados: " + trip.products.length;
+      }
+
+      function renderProducts() {
+        const trip = getSelectedTrip();
+        el.productList.innerHTML = "";
+
+        if (!trip) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "Selecciona un viaje para ver sus productos y total.";
+          el.productList.appendChild(empty);
+          el.totalValue.textContent = formatMoney(0);
+          return;
+        }
+
+        const total = trip.products.reduce(function (acc, product) {
+          return acc + (Number(product.resultado) || 0);
+        }, 0);
+
+        el.totalValue.textContent = formatMoney(total);
+
+        if (!trip.products.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "Este viaje no tiene productos guardados todavía.";
+          el.productList.appendChild(empty);
+          return;
+        }
+
+        trip.products.forEach(function (product) {
+          const item = document.createElement("article");
+          item.className = "product-item";
+          item.dataset.productId = product.id;
+
+          item.innerHTML =
+            '<div class="product-head">' +
+              '<div>' +
+                '<div class="product-name">' + escapeHtml(product.nombre || "Producto") + '</div>' +
+                '<div class="product-date">' + escapeHtml(formatDate(product.fecha)) + '</div>' +
+              '</div>' +
+              '<button type="button" class="danger delete-product" style="min-height:38px;padding:6px 10px;">Eliminar</button>' +
+            '</div>' +
+            '<div class="product-grid">' +
+              '<div>precio_peso_mx: ' + formatMoney(product.precio_peso_mx) + '</div>' +
+              '<div>peso_producto: ' + formatMoney(product.peso_producto) + '</div>' +
+              '<div>factor/base usados: ' + formatMoney(product.factor) + ' / ' + formatMoney(product.base) + '</div>' +
+              '<div><strong>resultado: ' + formatMoney(product.resultado) + '</strong></div>' +
+            '</div>';
+
+          el.productList.appendChild(item);
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function renderAll() {
+        renderTripSelect();
+        renderTripMeta();
+        renderProducts();
+      }
+
+      function createTrip() {
+        const name = el.tripName.value.trim();
+
+        if (!name) {
+          showStatus("Escribe un nombre para crear el viaje.", "warn");
+          return;
+        }
+
+        const trip = {
+          id: uid("trip"),
+          name: name,
+          createdAt: new Date().toISOString(),
+          products: []
+        };
+
+        state.trips.unshift(trip);
+        state.selectedTripId = trip.id;
+        saveState();
+        renderAll();
+
+        el.tripName.value = "";
+        showStatus("Viaje creado y seleccionado.", "ok");
+      }
+
+      function deleteCurrentTrip() {
+        const trip = getSelectedTrip();
+        if (!trip) {
+          showStatus("Selecciona un viaje para eliminar.", "warn");
+          return;
+        }
+
+        const accepted = window.confirm(
+          "¿Eliminar el viaje '" + trip.name + "' con todos sus productos?"
+        );
+
+        if (!accepted) {
+          return;
+        }
+
+        state.trips = state.trips.filter(function (item) {
+          return item.id !== trip.id;
+        });
+
+        state.selectedTripId = "";
+        saveState();
+        renderAll();
+        showStatus("Viaje eliminado.", "ok");
+      }
+
+      function exportCurrentTrip() {
+        const trip = getSelectedTrip();
+        if (!trip) {
+          showStatus("Selecciona un viaje para exportar.", "warn");
+          return;
+        }
+
+        const exportPayload = {
+          app: "CalculadoraBarba",
+          exportVersion: 1,
+          exportedAt: new Date().toISOString(),
+          trip: trip
+        };
+
+        try {
+          const json = JSON.stringify(exportPayload, null, 2);
+          const blob = new Blob([json], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = buildExportFileName(trip.name);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+          showStatus("Viaje exportado como JSON.", "ok");
+        } catch (error) {
+          console.error("Error exportando viaje:", error);
+          showStatus("No se pudo exportar el viaje.", "warn");
+        }
+      }
+
+      function importTripFromJsonText(textContent) {
+        const rawText = String(textContent || "").replace(/^\uFEFF/, "").trim();
+        if (!rawText) {
+          showStatus("El archivo está vacío.", "warn");
+          return;
+        }
+
+        let parsed;
+        try {
+          parsed = JSON.parse(rawText);
+        } catch (error) {
+          showStatus("El archivo no tiene JSON válido.", "warn");
+          return;
+        }
+
+        let sourceTrip = null;
+        if (parsed && typeof parsed === "object" && parsed.trip && typeof parsed.trip === "object") {
+          sourceTrip = parsed.trip;
+        } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.products)) {
+          sourceTrip = parsed;
+        }
+
+        if (!sourceTrip) {
+          showStatus("JSON no compatible. Debe incluir un viaje con productos.", "warn");
+          return;
+        }
+
+        const safeTrip = sanitizeImportedTrip(sourceTrip);
+        if (!safeTrip) {
+          showStatus("No se pudo interpretar el viaje importado.", "warn");
+          return;
+        }
+
+        state.trips.unshift(safeTrip);
+        state.selectedTripId = safeTrip.id;
+        saveState();
+        renderAll();
+        showStatus("Viaje importado y seleccionado: " + safeTrip.name, "ok");
+      }
+
+      function handleImportFileChange(event) {
+        const input = event.target;
+        const file = input && input.files && input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function () {
+          importTripFromJsonText(reader.result);
+          el.importFileInput.value = "";
+        };
+
+        reader.onerror = function () {
+          showStatus("No se pudo leer el archivo JSON.", "warn");
+          el.importFileInput.value = "";
+        };
+
+        reader.readAsText(file, "utf-8");
+      }
+
+      function calculateFromForm(showSuccessMessage) {
+        const values = validateInputNumbers();
+        if (!values) return null;
+
+        const resultado = calculateResult(values);
+        updateResult(resultado);
+
+        if (showSuccessMessage) {
+          showStatus("Cálculo realizado.", "ok");
+        } else {
+          clearStatus();
+        }
+
+        return {
+          nombre: el.productName.value.trim(),
+          fecha: el.productDate.value ? new Date(el.productDate.value).toISOString() : new Date().toISOString(),
+          precio_peso_mx: values.precioPesoMx,
+          peso_producto: values.pesoProducto,
+          factor: values.factor,
+          base: values.base,
+          resultado: resultado
+        };
+      }
+
+      function saveProduct() {
+        const trip = getSelectedTrip();
+        if (!trip) {
+          showStatus("Selecciona o crea un viaje antes de guardar el producto.", "warn");
+          return;
+        }
+
+        const calc = calculateFromForm(false);
+        if (!calc) return;
+
+        const product = {
+          id: uid("prod"),
+          nombre: calc.nombre || "Producto " + (trip.products.length + 1),
+          fecha: calc.fecha,
+          precio_peso_mx: calc.precio_peso_mx,
+          peso_producto: calc.peso_producto,
+          factor: calc.factor,
+          base: calc.base,
+          resultado: calc.resultado,
+          savedAt: new Date().toISOString()
+        };
+
+        trip.products.unshift(product);
+        saveState();
+        renderAll();
+        showStatus("Producto guardado dentro del viaje.", "ok");
+      }
+
+      function saveSettings() {
+        const factor = parseNumber(el.factorInput.value);
+        const base = parseNumber(el.baseInput.value);
+
+        if (!Number.isFinite(factor) || !Number.isFinite(base)) {
+          showStatus("Ingresa valores válidos para guardar ajustes.", "warn");
+          return;
+        }
+
+        state.settings.factor = factor;
+        state.settings.base = base;
+        saveState();
+        showStatus("Ajustes guardados como valores por defecto.", "ok");
+      }
+
+      function resetSettings() {
+        state.settings = { ...DEFAULT_SETTINGS };
+        setInputsFromSettings();
+        saveState();
+        showStatus("Valores restaurados a 30.5 y 10400.", "ok");
+      }
+
+      function removeProduct(productId) {
+        const trip = getSelectedTrip();
+        if (!trip) return;
+
+        const target = trip.products.find(function (item) {
+          return item.id === productId;
+        });
+
+        if (!target) return;
+
+        const accepted = window.confirm("¿Eliminar el producto '" + target.nombre + "'?");
+        if (!accepted) return;
+
+        trip.products = trip.products.filter(function (item) {
+          return item.id !== productId;
+        });
+
+        saveState();
+        renderAll();
+        showStatus("Producto eliminado.", "ok");
+      }
+
+      function initDefaultDate() {
+        const now = new Date();
+        const pad = function (n) { return String(n).padStart(2, "0"); };
+        const yyyy = now.getFullYear();
+        const mm = pad(now.getMonth() + 1);
+        const dd = pad(now.getDate());
+        const hh = pad(now.getHours());
+        const mi = pad(now.getMinutes());
+        el.productDate.value = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + mi;
+      }
+
+      function bindEvents() {
+        el.createTripBtn.addEventListener("click", createTrip);
+        el.deleteTripBtn.addEventListener("click", deleteCurrentTrip);
+        el.exportTripBtn.addEventListener("click", exportCurrentTrip);
+        el.importTripBtn.addEventListener("click", function () {
+          el.importFileInput.click();
+        });
+        el.importFileInput.addEventListener("change", handleImportFileChange);
+
+        el.tripSelect.addEventListener("change", function () {
+          state.selectedTripId = el.tripSelect.value;
+          saveState();
+          renderAll();
+          clearStatus();
+        });
+
+        el.calculateBtn.addEventListener("click", function () {
+          calculateFromForm(true);
+        });
+
+        el.saveProductBtn.addEventListener("click", saveProduct);
+        el.saveSettingsBtn.addEventListener("click", saveSettings);
+        el.resetSettingsBtn.addEventListener("click", resetSettings);
+
+        el.productList.addEventListener("click", function (event) {
+          const target = event.target;
+          if (!(target instanceof HTMLElement)) return;
+          if (!target.classList.contains("delete-product")) return;
+
+          const item = target.closest(".product-item");
+          if (!item) return;
+          const productId = item.dataset.productId;
+          if (!productId) return;
+          removeProduct(productId);
+        });
+      }
+
+      function bootstrap() {
+        loadState();
+        setInputsFromSettings();
+        initDefaultDate();
+        updateResult(0);
+        bindEvents();
+        renderAll();
+      }
+
+      bootstrap();
+    })();
+  </script>
+</body>
+</html>
